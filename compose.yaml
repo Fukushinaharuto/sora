@@ -14,20 +14,8 @@ services:
       - DB_PASSWORD=root
     depends_on:
       - db
-
-  # Node (Next.js)
-  node:
-    build:
-      context: ./app/front
-      dockerfile: ../../docker/node/Dockerfile 
-    container_name: node
-    volumes:
-      - ./app/front:/app
-    ports:
-      - "3000:3000"
-    command: "npm run dev"
-
-  # Nginx（Laravel + Next.js のリバースプロキシ）
+      
+  # Nginx
   nginx:
     build:
       context: ./docker/nginx
