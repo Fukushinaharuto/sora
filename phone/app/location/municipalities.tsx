@@ -72,7 +72,7 @@ export default function MunicipalitiesScreen() {
             selectedCity ? "bg-primary" : "bg-primary/40"
           }`}
           disabled={!selectedCity}
-          onPress={() => router.push("/post/add")}
+          onPress={() => router.push("/post")}
         >
           <Text className="text-white font-bold text-center text-lg">
             {selectedCity

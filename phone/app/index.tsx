@@ -1,7 +1,7 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import { router } from "expo-router";
-import SafeScreen from "@/components/safe-screen";
 import { LogoIcon, starts } from "@/components/icons";
+import SafeScreen from "@/components/safe-screen";
+import { router } from "expo-router";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 
 export default function Index() {
@@ -25,7 +25,11 @@ export default function Index() {
 
   return (
     <SafeScreen changeBackgroundColor="darkBlue">
-      <View className="flex justify-center items-center">
+      <ScrollView 
+        contentContainerClassName="flex justify-center items-center"
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+      >
         <LogoIcon size={80} color="white" />
         <Text className="text-white text-3xl mt-6 font-bold">行動で見る天気</Text>
         <View className="flex justify-center items-center my-6">
@@ -53,11 +57,17 @@ export default function Index() {
       {/* 消すやつ */}
       <TouchableOpacity 
         className="flex justify-center items-center bg-white py-5 w-full rounded-2xl mt-10"
+        onPress={() => {router.push("/help"); }}
+      >
+        <Text className="text-primary font-bold">はじめる</Text>
+      </TouchableOpacity>
+      <TouchableOpacity 
+        className="flex justify-center items-center bg-white py-5 w-full rounded-2xl mt-10"
         onPress={() => {router.push("/auth"); }}
       >
         <Text className="text-primary font-bold">はじめる</Text>
       </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeScreen>
   );
 }

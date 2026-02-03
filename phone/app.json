@@ -24,7 +24,12 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.eponamidona.phone"
+      "package": "com.eponamidona.phone",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDfOnn447wDC1LPOOlrPhMlLzZBHY-ynbo"
+        }
+      }
     },
     "web": {
       "output": "static",

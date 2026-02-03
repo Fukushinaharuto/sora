@@ -4,6 +4,7 @@ import { Link } from "expo-router";
 import { login } from "@/lib/api/login";
 import { register } from "@/lib/api/register";
 import { colors } from "@/lib/colors";
+import { forms } from "@/components/icons/";
 
 export function FormCard() {
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
@@ -50,34 +51,43 @@ export function FormCard() {
       <View className="mt-6">
         {activeTab !== "login" && (
           <View>
-          <Text className="text-white text-sm mb-1">ニックネーム</Text>
-          <TextInput
-            className="bg-white rounded-md px-3 py-2 mb-3"
-            placeholder="田中太郎"
-            placeholderTextColor="#90A1B9"
-            value={name}
-            onChangeText={setName}
-          />
+            <Text className="text-white text-sm mb-1">ニックネーム</Text>
+            <View className="flex-row items-center gap-2 mb-3 bg-white rounded-md px-3">
+              <forms.UserIcon size={18} color={colors.textPlaceholder} />
+              <TextInput
+                className="flex-1"
+                placeholder="田中太郎"
+                placeholderTextColor="{colors.textPlaceholder}"
+                value={name}
+                onChangeText={setName}
+              />
+            </View>
           </View>
         )}
         <Text className="text-white text-sm mb-1">メールアドレス</Text>
-        <TextInput
-          className="bg-white rounded-md px-3 py-2 mb-3"
-          placeholder="email@example.com"
-          placeholderTextColor={colors.textPlaceholder}
-          value={email}
-          onChangeText={setEmail}
-        />
+        <View className="flex-row items-center gap-2 mb-3 bg-white rounded-md px-3">
+          <forms.MailIcon size={18} color={colors.textPlaceholder} />
+          <TextInput
+            className="flex-1"
+            placeholder="email@example.com"
+            placeholderTextColor={colors.textPlaceholder}
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
 
         <Text className="text-white text-sm mb-1">パスワード</Text>
-        <TextInput
-          className="bg-white rounded-md px-3 py-2 mb-4"
-          secureTextEntry
-          placeholder="password"
-          placeholderTextColor={colors.textPlaceholder}
-          value={password}
-          onChangeText={setPassword}
-        />
+        <View className="flex-row items-center gap-2 mb-3 bg-white rounded-md px-3">
+          <forms.PasswordIcon size={18} color={colors.textPlaceholder} />
+          <TextInput
+            className="flex-1"
+            secureTextEntry
+            placeholder="password"
+            placeholderTextColor={colors.textPlaceholder}
+            value={password}
+            onChangeText={setPassword}
+          />
+        </View>
 
         <TouchableOpacity className="bg-white rounded-md py-3">
           <Text 

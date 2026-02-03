@@ -1,10 +1,9 @@
+import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import * as Notifications from 'expo-notifications';
-import { useEffect } from 'react';
-import './global.css';
 import 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import './global.css';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -16,9 +15,29 @@ Notifications.setNotificationHandler({
 });
 
 export default function RootLayout() {
-  useEffect(() => {
-    Notifications.requestPermissionsAsync();
-  }, []);
+  // const setUser = useUserStore((state) => state.setUser);
+
+  // useEffect(() => {
+  //   const init = async () => {
+  //     // 通知
+  //     // await Notifications.requestPermissionsAsync();
+
+  //     // トークン復元
+  //     const token = await SecureStore.getItemAsync('accessToken');
+
+  //     if (token) {
+  //       const res = await fetch('/me', {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+  //       if (!res.ok) return;
+  //       const user = await res.json();
+  //       setUser(user);
+        
+  //     }
+  //   };
+
+  //   init();
+  // }, [setUser]);
 
   return (
     <SafeAreaProvider>

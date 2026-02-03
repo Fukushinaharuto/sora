@@ -11,7 +11,7 @@ export type LoginResponse = {
 
 export function login({email, password}: LoginRequest) {
   return api<LoginResponse>("/api/login", {
-    method: "GET",
+    method: "POST",
     body: { email, password },
   });
 }

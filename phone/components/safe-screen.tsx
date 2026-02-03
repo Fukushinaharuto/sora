@@ -1,18 +1,20 @@
 // components/SafeScreen.tsx
+import { colors } from "@/lib/colors";
+import { LinearGradient } from "expo-linear-gradient";
+import { ReactNode } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ReactNode } from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { colors } from "@/lib/colors";
 
 type Props = {
   children: ReactNode;
   changeBackgroundColor: "white" | "darkBlue";
+  paddingX?: number;
 };
 
 export default function SafeScreen({
   children,
   changeBackgroundColor = "white",
+  paddingX = 20
 }: Props) {
   const insets = useSafeAreaInsets();
 
@@ -20,17 +22,17 @@ export default function SafeScreen({
     case "darkBlue":
       return (
         <LinearGradient
-        colors={[colors.primary, colors.primaryLight]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={{
-          flex: 1,
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: Math.max(insets.left, 20),
-          paddingRight: Math.max(insets.right, 20),
-        }}
-      >
+          colors={[colors.primary, colors.primaryLight]}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={{
+            flex: 1,
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+            paddingLeft: Math.max(insets.left, paddingX),
+            paddingRight: Math.max(insets.right, paddingX),
+          }}
+        >
         {children}
       </LinearGradient>
     )
@@ -42,8 +44,8 @@ export default function SafeScreen({
             backgroundColor: colors.secondary,
             paddingTop: insets.top,
             paddingBottom: insets.bottom,
-            paddingLeft: Math.max(insets.left, 20),
-            paddingRight: Math.max(insets.right, 20),
+            paddingLeft: Math.max(insets.left, paddingX),
+            paddingRight: Math.max(insets.right, paddingX),
           }}
         >
           {children}

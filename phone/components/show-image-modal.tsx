@@ -9,11 +9,11 @@ type Props = {
 export function ShowImageModal({ previewImage, setPreviewImage, setImages }: Props) {
   return (
       <Modal
-      visible={!!previewImage}
-      transparent
-      animationType="fade"
-      onRequestClose={() => setPreviewImage(null)}
-    >
+        visible={!!previewImage}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPreviewImage(null)}
+      >
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
         <TouchableOpacity
           style={{
@@ -35,7 +35,7 @@ export function ShowImageModal({ previewImage, setPreviewImage, setImages }: Pro
               setImages(prev => prev.filter(img => img !== previewImage));
               setPreviewImage(null);
             }}
-            className="mt-6 px-6 py-3 bg-red-500 rounded-xl"
+            className="mt-6 px-6 py-3 bg-red rounded-xl"
           >
             <Text className="text-white font-bold">
               削除する

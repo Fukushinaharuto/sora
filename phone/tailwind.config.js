@@ -14,7 +14,11 @@ module.exports = {
         borderColor: "#E2E8F0",
         sub: "#1C398E",
         subLight: "#EFF6FF",
-        borderSubColor: "#DBEAFE"
+        borderSubColor: "#DBEAFE",
+        grayLight: "#F8FAFC",
+        bgIcon: "#F1F5F9",
+        mapIconBlue: "#155DFC",
+        red: "#FB2C36",
       },
     },
   },
