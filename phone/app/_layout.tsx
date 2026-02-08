@@ -28,7 +28,8 @@ export default function RootLayout() {
         }}
       />
       <StatusBar style="auto" />
-      <Toast />
+      <Toast
+      />
     </SafeAreaProvider>
   );
 }

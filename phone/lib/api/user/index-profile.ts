@@ -4,14 +4,15 @@ export type IndexUserProfileResponse = {
   postCount: number;
   likeCount: number;
   activeDays: number;
-  latest: {
-    latestActiveDate: string;
+  recentActivities: {
+    date: string;
     postCount: number,
     likeCount: number,
   }[],
 }
 
 export function indexUserProfile() {
+  console.log("fetch")
   return api<IndexUserProfileResponse>(`/user/profile`, {
     method: "GET",
   });

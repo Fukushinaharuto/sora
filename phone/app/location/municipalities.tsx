@@ -17,7 +17,7 @@ export default function MunicipalitiesScreen() {
 
   useEffect(() => {
     if (user) {
-      setSelectedCity(user.city_name);
+      setSelectedCity(user.cityName);
     } else {
       setSelectedCity("");
     }
@@ -26,7 +26,6 @@ export default function MunicipalitiesScreen() {
   const {
     cities,
     isLoading: indexLocationIsLoading,
-    mutate,
   } = useIndexLocation(prefecture);
 
   if (updateCityIsLoading) return;

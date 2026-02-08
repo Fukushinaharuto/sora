@@ -14,8 +14,6 @@ export function useLogin() {
   const setUser = useUserStore((s) => s.setUser);
   const submit = async ({ email, password }: LoginRequest) => {
     setIsLoading(true);
-    // この後ユーザーの更新処理を記載予定
-    // 改善　const key = ユーザー更新
     try {
       const res = await login({email, password});
       SecureStore.setItemAsync("auth_token", res.token);
@@ -25,9 +23,10 @@ export function useLogin() {
         type: "success",
         text1: "ログインに成功しました！",
       });
-      router.replace(`/post?city_id=${res.user.cityId}`);
-    }  catch (e) {
-      if (e instanceof Error) {
+      router.replace(`/post?city_id=${String(res.user.cityId)}`);
+    }  catch (e:any) {
+      console.log(e)
+      if (e?.status === 422) {
         Toast.show({
           type: "error",
           text1: e.message,
@@ -35,7 +34,7 @@ export function useLogin() {
       } else {
         Toast.show({
           type: "error",
-          text1: "ログインに失敗しました！",
+          text1: "メールアドレスまたはパスワードが違います！",
         });
       }
     } finally {
@@ -59,28 +58,25 @@ export function useRegister() {
   const setUser = useUserStore((s) => s.setUser);
   const submit = async ({ name, email, password }: Register) => {
     setIsLoading(true);
-    // この後ユーザーの更新処理を記載予定
-    // 改善　const key = ユーザー更新
     try {
       const cityId = await SecureStore.getItemAsync("user_city");
-      console.log(cityId);
       if (!cityId) {
         Toast.show({
           type: "error",
           text1: "地域が選択されていません",
         });
+        router.replace("/location");
         return;
       }
       const res = await register({name, email, password, city_id: Number(cityId)});
-      SecureStore.setItemAsync("auth_token", res.token);
+      await SecureStore.setItemAsync("auth_token", res.token);
       setUser(res.user);
-      console.log(res.token)
       Toast.show({
         type: "success",
         text1: "ユーザー登録に成功しました！",
       });
-      console.log(`/post?city_id=${cityId}`)
-      router.replace(`/post?city_id=${res.user.cityId}`);
+      console.log(res.token)
+      router.replace(`/post?city_id=${String(res.user.cityId)}`);
     } catch (e) {
       if (e instanceof HttpError && e.status === 422) {
         // バリデーションエラー（Laravelからのメッセージ）
@@ -92,7 +88,7 @@ export function useRegister() {
         // それ以外のすべてのエラー
         Toast.show({
           type: "error",
-          text1: "ユーザー登録に失敗しました！",
+          text1: "メールアドレスまたはパスワードが違います！",
         });
       }
     }finally {

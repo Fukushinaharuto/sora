@@ -4,28 +4,30 @@ import SafeScreen from "@/components/safe-screen";
 import { ShowImageModal } from "@/components/show-image-modal";
 import { colors } from "@/lib/colors";
 import { useCreatePost } from "@/lib/hooks/usePost";
-import { getCurrentLocation } from "@/lib/utils/get-current-location";
+import { useLocationStore } from "@/store/useCurrentGet";
+import { useUserStore } from "@/store/useUserStore";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
-export default function AddScreen() {  
+export default function AddScreen() { 
+  
   const { submit, isLoading } = useCreatePost();
-
+  const latitude = useLocationStore((state) => state.latitude);
+  const longitude = useLocationStore((state) => state.longitude);
   const handleSubmit = async () => {
     const cityId = await SecureStore.getItemAsync("user_city");
-    console.log(cityId)
-    const { latitude, longitude } = await getCurrentLocation();
     await submit({
       categoryId: selectedCategory,
       message,
       images,
       cityId: Number(cityId),
-      latitude: latitude,
-      longitude: longitude,
+      latitude: latitude!,
+      longitude: longitude!,
     });
 
     router.back(); // 例：投稿後に戻る
@@ -38,9 +40,10 @@ export default function AddScreen() {
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [images, setImages] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [municipalities, setMunicipalities] = useState("渋谷・原宿");
+  const [municipalities, setMunicipalities] = useState("");
   const isPostEnabled =
-  selectedCategory !== 0 && message.trim().length > 0;
+  !isLoading && selectedCategory !== 0 && message.trim().length > 0;
+
   
   const cards = [
     {
@@ -85,11 +88,27 @@ export default function AddScreen() {
       setImages(prev => [...prev, ...uris]);
     }
   };
+  const user = useUserStore((state) => state.user); 
+  useEffect(() => {
+    if (!user) {
+      Toast.show({
+        type: "error",
+        text1: "この機能を利用するにはログインが必須です。",
+      });
+      router.push("/auth");
+    } else {
+      setMunicipalities(user.cityName);
+      console.log(user.cityName)
+    }
+  }, [user]);
+
+  if (!user) {
+    return null; // 何も描画しない
+  }
   
   return (
     <>
       <SafeScreen changeBackgroundColor="white">
-      
         <View 
           onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
           className="gap-2 bg-white border-b border-borderColor px-[20px] pb-6 z-10"
@@ -188,7 +207,7 @@ export default function AddScreen() {
                 ))}
               </View>
             )}
-            <View className="flex-row gap-3 justify-center items-center  bg-subLight rounded-2xl p-4 mt-8 border border-borderSubColor">
+            <View className="flex-row gap-3 justify-start items-center  bg-subLight rounded-2xl p-4 mt-8 border border-borderSubColor">
               <locations.LocationIcon size={20} color={colors.mapIconBlue} />
               <Text className="text-sub text-sm">投稿は <Text className="font-bold">{municipalities}エリア</Text> として共有されます</Text>
             </View>
@@ -199,7 +218,7 @@ export default function AddScreen() {
               `}
               onPress={handleSubmit}
             >
-              <Text className="text-white font-bold">投稿する</Text>
+              <Text className="text-white font-bold">{isLoading ? "投稿中..." : "投稿する"}</Text>
             </TouchableOpacity>
           </ScrollView>
         </KeyboardAvoidingView>

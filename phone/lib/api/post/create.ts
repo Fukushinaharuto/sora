@@ -21,6 +21,8 @@ export async function createPost(payload: CreatePostRequest) {
   formData.append("category_id", String(payload.categoryId));
   formData.append("message", payload.message);
   formData.append("city_id", String(payload.cityId));
+  formData.append("latitude", String(payload.latitude));
+  formData.append("longitude", String(payload.longitude));
 
   payload.images.forEach((uri, index) => {
     const file: RNFile = {
@@ -31,7 +33,7 @@ export async function createPost(payload: CreatePostRequest) {
   
     formData.append("imageFiles[]", file as any);
   });
-
+  console.log(formData)
   return api<{ success: boolean }>("/post", {
     method: "POST",
     body: formData,

@@ -13,16 +13,16 @@ export function useIndexUser() {
   const setUser = useUserStore((state) => state.setUser);
   const [token, setToken] = useState<string | null | undefined>(undefined);
   const key = token ? "/user" : null;
-
+  console.log(token)
   useEffect(() => {
-    SecureStore.getItemAsync("access_token").then((t) => setToken(t));
+    SecureStore.getItemAsync("auth_token").then((t) => setToken(t));
   }, []);
 
   const { error, isLoading, mutate } = useSWR<IndexUserResponse>(
     key,
     () => indexUser(),
     {
-      onSuccess: (user) => setUser(user),
+      onSuccess: (user) => {setUser(user), console.log(user)},
     }
   );
   return {
@@ -36,7 +36,7 @@ export function useIndexUserProfile() {
   const [token, setToken] = useState<string | null | undefined>(undefined);
   const key = token ? "/user/profile" : null;
   useEffect(() => {
-    SecureStore.getItemAsync("access_token").then((t) => setToken(t));
+    SecureStore.getItemAsync("auth_token").then((t) => setToken(t));
   }, []);
 
   const { data, error, isLoading, mutate } = useSWR<IndexUserProfileResponse>(
@@ -51,9 +51,6 @@ export function useIndexUserProfile() {
   };
 }
 
-
-
-
 type UpdateCity = {
   cityName: string;
 };
@@ -65,7 +62,9 @@ export function useUpdateCity() {
   const submit = async ({ cityName }: UpdateCity) => {
     setIsLoading(true);
     try {
+      console.log("start")
       const res = await updateCity({city_name: cityName});
+      console.log(res)
       await SecureStore.setItemAsync("user_city", res.cityId.toString());
       await mutate("/user");
       Toast.show({

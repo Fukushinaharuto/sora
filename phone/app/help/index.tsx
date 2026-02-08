@@ -4,6 +4,7 @@ import { helps } from "@/components/icons";
 import SafeScreen from "@/components/safe-screen";
 import { colors } from "@/lib/colors";
 import { useCreateAssignments, useIndexHelp } from "@/lib/hooks/useHelp";
+import { timeAgo } from "@/lib/utils/timeAgo";
 import { router, useLocalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
 import { Linking, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -28,6 +29,7 @@ export default function Index() {
       }
     }
   };
+  
 
   const openRoute = (lat: number, lng: number) => {
     const url = Platform.select({
@@ -122,12 +124,13 @@ export default function Index() {
                     <View className="flex-row items-center gap-1">
                       <helps.TimeIcon size={12} color={colors.blackLight} />
                       <Text className="text-blackLight text-xs">
-                        ・{task.createAt}
+                        {timeAgo(task.createAt)}
                       </Text>
                     </View>
                   </View>
+                  <Text className="text-black mb-3">{task.message}</Text>
                   <View className="flex-row items-center gap-2 mb-3">
-                    {task.status === "waiting" ?  (
+                    {task.helpersCount === 0 ?  (
                       <>
                         <helps.TimeIcon size={14} color={colors.orange} />
                         <Text className="text-sm text-orange font-bold">まだ誰も向かっていません</Text>
@@ -140,7 +143,6 @@ export default function Index() {
                     )}
                     
                   </View>
-
                   <View className="flex-row gap-2">
                     <TouchableOpacity
                       onPress={() => openRoute(task.latitude, task.longitude)}

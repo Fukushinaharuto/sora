@@ -13,6 +13,8 @@ export type IndexHelpResponse = {
   latitude: number,
   longitude: number,
   address: string, 
+  message: string,
+  isHelping: boolean,
 }
 
 export function indexHelp({ city_id }: IndexHelpRequest) {

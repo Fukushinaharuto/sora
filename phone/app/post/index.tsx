@@ -6,13 +6,14 @@ import { GoodIcon, LogoIcon, NarrowDownIcon, categories, helps, locations } from
 import SafeScreen from "@/components/safe-screen";
 import { colors } from "@/lib/colors";
 import { useCreateLikePost, useIndexPost } from "@/lib/hooks/usePost";
+import { changeWatherType } from "@/lib/utils/change-wather-type";
 import { timeAgo } from "@/lib/utils/timeAgo";
+import { useUserStore } from "@/store/useUserStore";
 import { router, useLocalSearchParams } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+import Toast from "react-native-toast-message";
 
 export type Category = {
   key: "all" | "rain" | "clothes" | "move" | "sun";
@@ -22,6 +23,7 @@ export type Category = {
   icon: React.FC<{ size: number; color: string }>;
 };
 export default function Index() {
+  const user = useUserStore((state) => state.user);
   const { city_id } = useLocalSearchParams<{ city_id: string }>();
   const insets = useSafeAreaInsets();
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -39,15 +41,41 @@ export default function Index() {
   ];
   const categoryId = categoryList.find(cat => cat.key === selectedCategory)?.id ?? 0;
 
-  const { posts, cityName, isLoading: indexPostIsLoading } = useIndexPost(Number(city_id), categoryId);
+  const { posts, cityName, weatherType, maxTemperature, minTemperature, isLoading: indexPostIsLoading } = useIndexPost(Number(city_id), categoryId);
   const { submit: likeSubmit, isLoading: likeLoading } = useCreateLikePost();
 
   const handleCategoryChange = (key: Category["key"]) => {
     setSelectedCategory(key);
     setIsOpenCategoryModal(false);
-    // 改善
-    SecureStore.deleteItemAsync("user_city");
   };
+
+  const renderCategoryIcon = (categoryId: number) => {
+    switch (categoryId) {
+      case 1:
+        return <categories.RainIcon size={20} color={colors.primaryLight} />;
+      case 2:
+        return <categories.ClothesIcon size={20} color={colors.primaryLight} />;
+      case 3:
+        return <categories.MoveIcon size={20} color={colors.primaryLight} />;
+      case 4:
+        return <categories.SunIcon size={20} color={colors.primaryLight} />;
+      default:
+        return <NarrowDownIcon size={20} color={colors.primaryLight} />;
+    }
+  }
+  const handleHelpIsOpen = () => {
+    if (user){
+      setIsOpenHelpModal(true);
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "この機能を利用するにはログインが必須です。",
+      })
+      router.push("/auth")
+    }
+    
+  }
+  console.log(cityName)
   return (
     <>
       <SafeScreen changeBackgroundColor="white">
@@ -62,15 +90,18 @@ export default function Index() {
             paddingTop: Math.max(insets.top, 20),
           }}
         >
-          <View className="flex-row items-center gap-2 mt-3">
+          <TouchableOpacity 
+            onPress={() => router.push("/location")}
+            className="flex-row items-center gap-2 mt-3"
+          >
             <locations.LocationIcon size={20} color={colors.primaryLight} />
             <Text className="text-black">{cityName}・エリア</Text>
-          </View>
+          </TouchableOpacity>
           <View className="flex-row items-center gap-3 bg-grayLight rounded-xl px-5 py-3">
             <LogoIcon size={24} color={colors.primary} />
             <View>
-              <Text className="text-black text-sm">今日の過ごしやすい天気</Text>
-              <Text className="text-blackLight text-xs">最高 19°C / 最低 14°C</Text>
+              <Text className="text-black text-sm">今日の天気・{changeWatherType(weatherType)}</Text>
+              <Text className="text-blackLight text-xs">最高 {maxTemperature}°C / 最低 {minTemperature}°C</Text>
             </View>
           </View>
         </View>
@@ -86,7 +117,7 @@ export default function Index() {
               <Text className="text-blackLight text-xs">カテゴリ</Text>
               <TouchableOpacity 
                 className="flex-row items-center gap-1 bg-primary rounded-xl px-3 py-2"
-                onPress={() => setIsOpenCategoryModal(true)}
+                onPress={() => {setIsOpenCategoryModal(true)}}
               >
                 <NarrowDownIcon size={14} color="white" />
                 <Text className="text-sm text-white font-bold">
@@ -116,7 +147,7 @@ export default function Index() {
                   >
                     <View className="flex-row items-center gap-3">
                       <View className="flex-row items-center justify-center gap-2 bg-bgIcon rounded-full w-10 h-10">
-                        <categories.ClothesIcon size={20} color={colors.primaryLight} />
+                        {renderCategoryIcon(post.categoryId)}
                       </View>
                       <View>
                         <Text className="text-black">{post.postedBy}</Text>
@@ -124,26 +155,23 @@ export default function Index() {
                       </View>
                     </View>
                     <Text className="text-black mt-3">{post.message}</Text>
-                    <Image 
-                      source={{ uri: post.imageUrl }}
-                      className="w-full h-40 rounded-2xl mt-3" 
-                    />
+                    {post.imageUrl && (
+                      <Image 
+                        source={{ uri: post.imageUrl }}
+                        className="w-full h-40 rounded-2xl mt-3" 
+                      />
+                    )}
                     <View className="bg-grayLight rounded-lg flex-row items-center gap-3 px-3 py-2 mt-3">
                       <LogoIcon size={14} color={colors.primary} />
-                      <Text className="text-primaryLight text-xs">晴れ時々曇り {post.temperature}℃</Text>
+                      <Text className="text-primaryLight text-xs">{changeWatherType(post.weatherType)} {post.temperature}℃</Text>
                     </View>
                     <View className="flex-row justify-start items-center">
                       <TouchableOpacity 
                         onPress={() =>
                           likeSubmit({
                             postId: post.id,
-                            isliked: post.isLiked,
-                            likeCount: post.likeCount,
-                            cityId: Number(city_id),
-                            categoryId: categoryId,
                           })
                         }
-                        disabled={likeLoading}
                         className={`${
                           post.isLiked ? "bg-subLight" : "bg-grayLight"
                         } rounded-xl flex-row items-center gap-3 px-5 py-3 mt-3 min-w-0 border border-borderColor`}
@@ -185,7 +213,7 @@ export default function Index() {
             backgroundColor: "transparent",
             borderRadius: 999,
           }}
-          onPress={() => setIsOpenHelpModal(true)}
+          onPress={handleHelpIsOpen}
         >
           <helps.CaveatIcon size={60} color={colors.red} />
         </TouchableOpacity>
@@ -202,7 +230,7 @@ export default function Index() {
             backgroundColor: "transparent",
             borderRadius: 999,
           }}
-          onPress={() => router.push(`/help`)}
+          onPress={() => router.push(`/help?city_id=${city_id}`)}
         >
           <helps.NotificationIcon size={55} color={colors.primary} />
         </TouchableOpacity>
@@ -218,7 +246,15 @@ export default function Index() {
         }}
         categoryList={categoryList}
       />
-      <HelpModal isOpen={isOpenHelpModal} setIsOpen={setIsOpenHelpModal} />
+      {user && (
+        <HelpModal
+          isOpen={isOpenHelpModal}
+          setIsOpen={setIsOpenHelpModal}
+          city_id={city_id}
+          userStatus={user.status}
+        />
+      )}
+
     </>
   );
 }

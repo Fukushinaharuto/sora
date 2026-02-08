@@ -1,4 +1,5 @@
 import { createPost, CreatePostRequest } from "@/lib/api/post/create";
+import { useLocationStore } from "@/store/useCurrentGet";
 import { useState } from "react";
 import Toast from "react-native-toast-message";
 import useSWR, { useSWRConfig } from "swr";
@@ -7,18 +8,26 @@ import { createLikePost } from "../api/post/like";
 import { showPost, ShowPostResponse } from "../api/post/show";
 
 export function useIndexPost(city_id: number, category_id: number) {
-  const key = city_id
-    ? `/post?city_id=${city_id}&category_id=${category_id}`
-    : null;
-
-  const { data, error, isLoading, mutate } = useSWR(
-    key,
-    () => indexPost({ city_id, category_id })
-  );
-  console.log(data);
+  const latitude = useLocationStore((state) => state.latitude);
+  const longitude = useLocationStore((state) => state.longitude);
+  const key =
+    city_id
+      ? `/post?city_id=${city_id}`
+      : null;
+    const { data, error, isLoading, mutate } = useSWR(key, async () => {
+      return indexPost({
+        city_id,
+        category_id,
+        latitude: latitude!,
+        longitude: longitude!,
+      });
+    });
   return {
     posts: data?.posts ?? [],
-    cityName: data?.city_name ?? "",
+    cityName: data?.cityName ?? "",
+    weatherType: data?.weatherType ?? "",
+    maxTemperature: data?.maxTemperature ?? 0,
+    minTemperature: data?.minTemperature ?? 0,
     isLoading,
     isError: !!error,
     mutate, // ← これで再取得・再検証できる
@@ -48,9 +57,8 @@ export function useCreatePost() {
   const [isLoading, setIsLoading] = useState(false);
     const submit = async (data: CreatePostRequest) => {
     setIsLoading(true);
-    const listKey = `/post?city_id=${data.cityId}&category_id=${data.categoryId}`;
+    const listKey = `/post?city_id=${data.cityId}`;
     const userProfileKey = "/user/profile";
-    console.log(data)
     try {
       await createPost(data);
       Toast.show({
@@ -87,66 +95,85 @@ export function useCreatePost() {
 
 type CreateLikePost = {
   postId: number;
-  isliked: boolean;
-  likeCount: number;
-  cityId?: number;
-  categoryId?: number;
 };
 
 export function useCreateLikePost() {
   const { mutate } = useSWRConfig();
   const [isLoading, setIsLoading] = useState(false);
 
-  const submit = async ({ postId, isliked, likeCount, cityId, categoryId }: CreateLikePost) => {
+  const submit = async ({ postId }: CreateLikePost) => {
     setIsLoading(true);
-    const listKey = `/post?city_id=${cityId}&category_id=${categoryId}`;
     const showKey = `/post/show/${postId}`;
-    const userProfileKey = "/user/profile";
-    // ① 楽観的にキャッシュ更新（一覧）
-    mutate<IndexPostResponse>(
-      listKey,
-      (current) => {
+
+    // ① まず楽観的に更新（詳細）
+    mutate(
+      showKey,
+      (current: ShowPostResponse | undefined) => {
         if (!current) return current;
-    
+        const nextLiked = !current.isLiked;
         return {
           ...current,
-          posts: current.posts.map((p) =>
-            p.id === postId
-              ? {
-                  ...p,
-                  isLiked: !isliked,
-                  likeCount: isliked ? likeCount - 1 : likeCount + 1,
-                }
-              : p
-          ),
+          isLiked: nextLiked,
+          likeCount: current.likeCount + (nextLiked ? 1 : -1),
         };
       },
       false
     );
 
-    // ② 楽観的にキャッシュ更新（詳細）
-    mutate<ShowPostResponse>(
-      showKey,
-      (current) => {
+    // ② 一覧も楽観的に更新
+    mutate(
+      (key) => typeof key === "string" && key.startsWith("/post?city_id="),
+      (current: IndexPostResponse | undefined) => {
         if (!current) return current;
         return {
           ...current,
-          isLiked: !isliked,
-          likeCount: isliked ? likeCount - 1 : likeCount + 1,
+          posts: current.posts.map((post) => {
+            if (post.id !== postId) return post;
+            const nextLiked = !post.isLiked;
+            return {
+              ...post,
+              isLiked: nextLiked,
+              likeCount: post.likeCount + (nextLiked ? 1 : -1),
+            };
+          }),
         };
       },
       false
     );
+
     try {
-      await createLikePost({post_id: postId});
-      // フェッチしたデータで更新
-      mutate(listKey);
-      mutate(showKey);
-      mutate(userProfileKey);
+      // ③ API 実行
+      const res = await createLikePost({ post_id: postId });
+
+      // ④ サーバーの確定値で上書き（ズレ防止）
+      mutate(
+        showKey,
+        (current: ShowPostResponse | undefined) =>
+          current
+            ? { ...current, isLiked: res.isLiked, likeCount: res.likeCount }
+            : current,
+        false
+      );
+
+      mutate(
+        (key) => typeof key === "string" && key.startsWith("/post?city_id="),
+        (current: IndexPostResponse | undefined) =>
+          current
+            ? {
+                ...current,
+                posts: current.posts.map((post) =>
+                  post.id === postId
+                    ? { ...post, isLiked: res.isLiked, likeCount: res.likeCount }
+                    : post
+                ),
+              }
+            : current,
+        false
+      );
     } catch {
-      mutate(listKey);
+      // ⑤ 失敗したら再検証して元に戻す
       mutate(showKey);
-      mutate(userProfileKey);
+      mutate((key) => typeof key === "string" && key.startsWith("/post?city_id="));
       Toast.show({
         type: "error",
         text1: "いいねに失敗しました！",
@@ -155,8 +182,6 @@ export function useCreateLikePost() {
       setIsLoading(false);
     }
   };
-  return {
-    submit,
-    isLoading,
-  };
+
+  return { submit, isLoading };
 }

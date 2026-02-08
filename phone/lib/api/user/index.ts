@@ -6,6 +6,7 @@ export type IndexUserResponse = {
   cityId: number;
   cityName: string;
   imageUrl: string;
+  status: boolean;
   // バッジ系
 };
 

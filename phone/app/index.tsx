@@ -1,16 +1,19 @@
 import { LogoIcon, starts } from "@/components/icons";
 import SafeScreen from "@/components/safe-screen";
+import { getCurrentLocation } from "@/lib/utils/get-current-location";
+import { useLocationStore } from "@/store/useCurrentGet";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-
-
 export default function Index() {
+  const setLocation = useLocationStore((state) => state.setLocation);
   const [checking, setChecking] = useState(true);
   useEffect(() => {
     const checkLocation = async () => {
+      const { latitude, longitude } = await getCurrentLocation();
+      setLocation(latitude, longitude);
       const location = await SecureStore.getItemAsync("user_city");
       if (location) {
         // 地域設定あり → post へ
@@ -69,36 +72,11 @@ export default function Index() {
             </View>
         ))}
         <TouchableOpacity 
-        className="flex justify-center items-center bg-white py-5 w-full rounded-2xl mt-10"
-        onPress={() => {router.push("/location"); }}
-      >
-        <Text className="text-primary font-bold">はじめる</Text>
-      </TouchableOpacity>
-      {/* 消すやつ */}
-      <TouchableOpacity 
-        className="flex justify-center items-center bg-white py-5 w-full rounded-2xl mt-10"
-        onPress={() => {router.push("/help"); }}
-      >
-        <Text className="text-primary font-bold">はじめる</Text>
-      </TouchableOpacity>
-      <TouchableOpacity 
-        className="flex justify-center items-center bg-white py-5 w-full rounded-2xl mt-10"
-        onPress={() => {router.push("/auth"); }}
-      >
-        <Text className="text-primary font-bold">はじめる</Text>
-      </TouchableOpacity>
-      <TouchableOpacity 
-        className="flex justify-center items-center bg-white py-5 w-full rounded-2xl mt-10"
-        onPress={() => {SecureStore.setItemAsync("user_city", "1");}}
-      >
-        <Text className="text-primary font-bold">はじめる</Text>
-      </TouchableOpacity>
-      <TouchableOpacity 
-        className="flex justify-center items-center bg-white py-5 w-full rounded-2xl mt-10"
-        onPress={() => {router.push("/post/1")}}
-      >
-        <Text className="text-primary font-bold">はじめる</Text>
-      </TouchableOpacity>
+          className="flex justify-center items-center bg-white py-5 w-full rounded-2xl mt-10"
+          onPress={() => {router.push("/location"); }}
+        >
+          <Text className="text-primary font-bold">はじめる</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeScreen>
   );

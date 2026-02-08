@@ -1,7 +1,8 @@
 import { forms } from "@/components/icons/";
 import { colors } from "@/lib/colors";
 import { useLogin, useRegister } from "@/lib/hooks/useAuth";
-import { Link } from "expo-router";
+import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
@@ -29,6 +30,12 @@ export function FormCard() {
         password,
       })
     }
+  };
+
+  const goHome = async () => {
+    const id = await SecureStore.getItemAsync("user_city");
+    if (!id) return; // ない場合のガード
+    router.push(`/post?city_id=${id}`);
   };
   
   return (
@@ -106,12 +113,12 @@ export function FormCard() {
       </View>
     </View>
       {activeTab === "login" ? (
-        <Link 
-          href="/post" 
+        <TouchableOpacity 
+          onPress={goHome} 
           className="mt-4 underline decoration-2 underline-offset-4 decoration-white/50 text-white/70 hover:decoration-white"
         >
           <Text className="text-white/70 text-sm">ゲストとして続ける</Text>
-        </Link>
+        </TouchableOpacity>
         ) : (
           <View className="justify-center items-center mt-4 gap-1">
             <Text className="text-white/50 text-xs">登録することで利用規約とプライバシーポリシーに</Text>

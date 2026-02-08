@@ -71,7 +71,7 @@ export default function PostShow() {
           paddingBottom: Math.max(footerHeight - insets.bottom + 20, 0),
         }}
       >
-        {!post ? <Text className="text-black">Loading...</Text> : ( // 改善　後で元に戻す
+        {!post ? <View className="justify-center items-center"><Text className="text-black">Loading...</Text></View> : (
           <>
             <ScrollView
               horizontal
@@ -133,11 +133,8 @@ export default function PostShow() {
                   onPress={() =>
                     likeSubmit({
                       postId: post.id,
-                      isliked: post.isLiked,
-                      likeCount: post.likeCount,
                     })
                   }
-                  disabled={likeLoading}
                   className={`${
                     post.isLiked ? "bg-subLight" : "bg-grayLight"
                   } rounded-xl flex-row items-center gap-3 px-5 py-3 mt-3 min-w-0 border border-borderColor`}
@@ -168,7 +165,7 @@ export default function PostShow() {
                         <Text className="text-xs text-primaryLight">気温</Text>
                       </View>
                       <Text className="text-black py-2 font-bold">{post.temperature}℃</Text>
-                      <Text className="text-blackLight text-xs">体感 16℃</Text>
+                      <Text className="text-blackLight text-xs"></Text>
                     </View>
                   </View>
                   {/* 右上 */}
@@ -176,10 +173,10 @@ export default function PostShow() {
                     <View className="bg-white border border-borderColor px-4 py-5 rounded-2xl">
                       <View className="flex-row items-center gap-2">
                         <weathers.PrecipitationProbabilityIcon size={18} color={colors.primaryLight} />
-                        <Text className="text-xs text-primaryLight">降水確率</Text>
+                        <Text className="text-xs text-primaryLight">降水量</Text>
                       </View>
-                      <Text className="text-black py-2 font-bold">{post.precipitationProb}%</Text>
-                      <Text className="text-blackLight text-xs">夕方から10%</Text>
+                      <Text className="text-black py-2 font-bold">{post.precipitationProb}mm/h</Text>
+                      <Text className="text-blackLight text-xs"></Text>
                     </View>
                   </View>
 

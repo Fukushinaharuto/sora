@@ -58,9 +58,8 @@ export default function Index() {
         <locations.CurrentLocationIcon size={24} color={colors.primary} />
         <View>
           <Text className="text-primary font-bold">現在地を使用</Text>
-          <Text className="text-primary text-sm">東京都渋谷区</Text>
-        </View>
-        
+          <Text className="text-primary text-sm">現在地から市町村区を自動で選択。</Text>
+        </View>   
       </TouchableOpacity>
       <View className="flex-row items-center gap-2 mt-6 mb-2">
         <locations.LocationIcon size={16} color={colors.primaryLight} />
@@ -86,6 +85,25 @@ export default function Index() {
           </TouchableOpacity>
         ))}
       </ScrollView>
+      {updateCityIsLoading && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "white",
+            opacity: 0.9,
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+          pointerEvents="auto" // タッチ操作をブロック
+        >
+          <Text className="text-primary font-bold text-lg">現在地を取得中...</Text>
+        </View>
+      )}
     </SafeScreen>
   );
 }
