@@ -38,7 +38,7 @@ export async function api<T>(
 
     const isFormData = body instanceof FormData;
 
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const res = await fetch(`${API_BASE_URL}/api${endpoint}`, {
       method,
       headers: {
         ...(token && { Authorization: `Bearer ${token}` }),

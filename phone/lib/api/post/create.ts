@@ -35,7 +35,6 @@ async function compressImage(uri: string, index: number): Promise<RNFile> {
     const fileSizeMB = fileInfo.size / 1024 / 1024;
     const maxSizeMB = 2; // 2MB制限
     
-    console.log(`📸 Image ${index} - Original size: ${fileSizeMB.toFixed(2)}MB`);
 
     let compressedUri = uri;
     let compress = 1.0; // デフォルトは圧縮なし
@@ -44,7 +43,6 @@ async function compressImage(uri: string, index: number): Promise<RNFile> {
     if (fileSizeMB > maxSizeMB) {
       // ファイルサイズに応じて圧縮率を計算
       compress = Math.max(0.3, maxSizeMB / fileSizeMB); // 最低30%まで圧縮
-      console.log(`🔧 Compressing with quality: ${(compress * 100).toFixed(0)}%`);
       
       const manipulatedImage = await ImageManipulator.manipulateAsync(
         uri,
@@ -61,11 +59,10 @@ async function compressImage(uri: string, index: number): Promise<RNFile> {
       const compressedInfo = await FileSystemLegacy.getInfoAsync(compressedUri);
       if ('size' in compressedInfo) {
         const compressedSizeMB = compressedInfo.size / 1024 / 1024;
-        console.log(`✅ Image ${index} - Compressed size: ${compressedSizeMB.toFixed(2)}MB`);
 
         // まだ大きい場合はさらに圧縮
         if (compressedSizeMB > maxSizeMB) {
-          console.log(`⚠️ Still too large, compressing again...`);
+
           const secondPass = await ImageManipulator.manipulateAsync(
             compressedUri,
             [{ resize: { width: 1280 } }], // さらに小さく
@@ -79,7 +76,6 @@ async function compressImage(uri: string, index: number): Promise<RNFile> {
           const finalInfo = await FileSystemLegacy.getInfoAsync(compressedUri);
           if ('size' in finalInfo) {
             const finalSizeMB = finalInfo.size / 1024 / 1024;
-            console.log(`✅ Image ${index} - Final size: ${finalSizeMB.toFixed(2)}MB`);
           }
         }
       }
@@ -94,7 +90,6 @@ async function compressImage(uri: string, index: number): Promise<RNFile> {
         }
       );
       compressedUri = manipulatedImage.uri;
-      console.log(`✅ Image ${index} - Converted to JPEG`);
     }
 
     return {
@@ -124,14 +119,11 @@ export async function createPost(payload: CreatePostRequest) {
     try {
       const compressedFile = await compressImage(uri, index);
       formData.append("imageFiles[]", compressedFile as any);
-      console.log(`📤 Image ${index} ready to upload:`, compressedFile.name);
     } catch (error) {
       console.error(`Failed to process image ${index}:`, error);
       throw new Error(`画像 ${index + 1} の処理に失敗しました`);
     }
   }
-
-  console.log("📤 Uploading post with compressed images...");
   
   return api<{ success: boolean }>("/post", {
     method: "POST",

@@ -11,7 +11,6 @@ export type CreateHelpRequest = {
 
 
 export function createHelp(data: CreateHelpRequest) {
-  console.log(data)
   return api("/help", {
     method: "POST",
     body: data ,

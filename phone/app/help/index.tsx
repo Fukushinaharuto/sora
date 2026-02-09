@@ -6,6 +6,7 @@ import { colors } from "@/lib/colors";
 import { useCreateAssignments, useIndexHelp } from "@/lib/hooks/useHelp";
 import { timeAgo } from "@/lib/utils/timeAgo";
 import { useUserStore } from "@/store/useUserStore";
+import { useIsFocused } from "@react-navigation/native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -15,7 +16,9 @@ import Toast from "react-native-toast-message";
 export default function Index() {  
   const insets = useSafeAreaInsets();
   const { city_id } = useLocalSearchParams<{ city_id: string }>();
-  const { tasks, isLoading: indexHelpIsLoading, mutate } = useIndexHelp(Number(city_id));
+  const isFocused = useIsFocused();
+  const isActive = isFocused;
+  const { tasks, isLoading: indexHelpIsLoading, mutate } = useIndexHelp(Number(city_id), isActive);
   const { submit, isLoading } = useCreateAssignments();
   const [headerHeight, setHeaderHeight] = useState(0);
   const [footerHeight, setFooterHeight] = useState(0);

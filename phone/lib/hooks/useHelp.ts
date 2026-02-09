@@ -8,15 +8,15 @@ import { createAssignments } from "../api/help/createAssignments";
 import { indexHelpCity } from "../api/help/indexCity";
 import { updateHelped } from "../api/help/updateHelped";
 
-export function useIndexHelp(city_id: number) {
-  const key = city_id
+export function useIndexHelp(city_id: number, isActive: boolean) {
+  const key = city_id && isActive
     ? `/help?city_id=${city_id}`
     : null;
   const { data, error, isLoading, mutate } = useSWR(
     key,
     () => indexHelp({ city_id }),
     {
-      refreshInterval: 5000,
+      refreshInterval: isActive ? 5000 : 0,
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
     }
@@ -171,9 +171,7 @@ export function useUpdateHelped() {
       }
       mutate(key);
     } catch (e: any) {
-      console.log(e)
       if (e?.status === 422) {
-        console.log(e)
         // バリデーションエラー
         Toast.show({
           type: "error",

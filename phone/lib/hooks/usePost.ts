@@ -7,11 +7,11 @@ import { indexPost, IndexPostResponse } from "../api/post";
 import { createLikePost } from "../api/post/like";
 import { showPost, ShowPostResponse } from "../api/post/show";
 
-export function useIndexPost(city_id: number, category_id: number) {
+export function useIndexPost(city_id: number, category_id: number, isActive: boolean) {
   const latitude = useLocationStore((state) => state.latitude);
   const longitude = useLocationStore((state) => state.longitude);
   const key =
-    city_id
+    city_id && isActive
       ? `/post?city_id=${city_id}&category_id=${category_id}`
       : null;
   const { data, error, isLoading, mutate } = useSWR(
@@ -24,7 +24,7 @@ export function useIndexPost(city_id: number, category_id: number) {
         longitude: longitude!,
       }),
     {
-      refreshInterval: 5000,
+      refreshInterval: isActive ? 5000 : 0,
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
     }

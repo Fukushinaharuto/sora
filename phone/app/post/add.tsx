@@ -98,7 +98,6 @@ export default function AddScreen() {
       router.push("/auth");
     } else {
       setMunicipalities(user.cityName);
-      console.log(user.cityName)
     }
   }, [user]);
 

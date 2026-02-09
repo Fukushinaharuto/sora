@@ -8,6 +8,7 @@ import { useCreateLikePost, useIndexPost } from "@/lib/hooks/usePost";
 import { changeWatherType } from "@/lib/utils/change-wather-type";
 import { timeAgo } from "@/lib/utils/timeAgo";
 import { useUserStore } from "@/store/useUserStore";
+import { useIsFocused } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -33,6 +34,8 @@ export default function Index() {
   const [isOpenCategoryModal, setIsOpenCategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<"all" | "rain" | "clothes" | "move" | "sun">("all");
   const [refreshing, setRefreshing] = useState(false);
+  const isFocused = useIsFocused();
+  const isActive = isFocused;
   
   const categoryList: Category[] = [
     { key: "all", id: 0, label: "すべて", icon: NarrowDownIcon},
@@ -44,9 +47,8 @@ export default function Index() {
   
   const categoryId = categoryList.find(cat => cat.key === selectedCategory)?.id ?? 0;
 
-  const { posts, cityName, weatherType, maxTemperature, minTemperature, isLoading: indexPostIsLoading, mutate } = useIndexPost(Number(city_id), categoryId);
+  const { posts, cityName, weatherType, maxTemperature, minTemperature, isLoading: indexPostIsLoading, mutate } = useIndexPost(Number(city_id), categoryId, isActive);
   const { submit: likeSubmit, isLoading: likeLoading } = useCreateLikePost();
-
   const onRefresh = async () => {
     setRefreshing(true);
     try {

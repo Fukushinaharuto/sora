@@ -25,7 +25,6 @@ export function useLogin() {
       });
       router.replace(`/post?city_id=${String(res.user.cityId)}`);
     }  catch (e:any) {
-      console.log(e)
       if (e?.status === 422) {
         Toast.show({
           type: "error",
@@ -75,7 +74,6 @@ export function useRegister() {
         type: "success",
         text1: "ユーザー登録に成功しました！",
       });
-      console.log(res.token)
       router.replace(`/post?city_id=${String(res.user.cityId)}`);
     } catch (e) {
       if (e instanceof HttpError && e.status === 422) {

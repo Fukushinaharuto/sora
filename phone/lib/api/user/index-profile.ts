@@ -12,7 +12,6 @@ export type IndexUserProfileResponse = {
 }
 
 export function indexUserProfile() {
-  console.log("fetch")
   return api<IndexUserProfileResponse>(`/user/profile`, {
     method: "GET",
   });
