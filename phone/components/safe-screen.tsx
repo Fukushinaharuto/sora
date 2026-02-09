@@ -22,7 +22,7 @@ export default function SafeScreen({
     case "darkBlue":
       return (
         <LinearGradient
-          colors={[colors.primary, colors.primaryLight]}
+          colors={[colors.blue, "#FFFFFF"]} // ← 上: 青 (#009DFF)、下: 白 (#FFFFFF)
           start={{ x: 0.5, y: 0 }}
           end={{ x: 0.5, y: 1 }}
           style={{

@@ -1,7 +1,6 @@
 import { FormCard } from "@/components/form-card";
-import { LogoIcon } from "@/components/icons";
 import SafeScreen from "@/components/safe-screen";
-import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native";
+import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native";
 
 export default function Index() {
   return (
@@ -16,7 +15,11 @@ export default function Index() {
           showsVerticalScrollIndicator={false}
         >
         <View className="flex-1 justify-center items-center">
-          <LogoIcon size={80} color="white" />
+        <Image 
+          source={require('@/assets/images/public/logo.png')} 
+          className="w-40 h-40"
+          style={{ resizeMode: 'contain' }} 
+        />
           <Text className="text-white text-3xl mt-6 font-bold">
             行動で見る天気
           </Text>

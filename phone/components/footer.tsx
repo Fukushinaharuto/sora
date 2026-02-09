@@ -1,5 +1,6 @@
 import { footers } from "@/components/icons";
 import { colors } from "@/lib/colors";
+import { useUserStore } from "@/store/useUserStore";
 import { router, usePathname } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -9,6 +10,7 @@ interface Props {
 }
 export function Footer({setFooterHeight}: Props) {
   const pathname = usePathname();
+  const user = useUserStore((state) => state.user);
   const goHome = async () => {
     const id = await SecureStore.getItemAsync("user_city");
     if (!id) return; // ない場合のガード
@@ -25,13 +27,13 @@ export function Footer({setFooterHeight}: Props) {
     {
       icon: footers.PostAddIcon,
       text: "投稿",
-      onPress: () => router.push("/post/add"),
+      onPress: () => {user ? router.push("/post/add") : router.push("/auth")},
       href: "/post/add",
     },
     {
       icon: footers.ProfileIcon,
       text: "プロフィール",
-      onPress: () => router.push("/profile"),
+      onPress: () => {user ? router.push("/profile") : router.push("/auth")},
       href: "/profile",
     },
   ] as const;
@@ -52,7 +54,7 @@ export function Footer({setFooterHeight}: Props) {
             disabled={isActive}
           >
             {isActive ? (
-              <View className="w-14 h-14 rounded-full justify-center items-center bg-primary" >
+              <View className="w-14 h-14 rounded-full justify-center items-center bg-orangeDark" >
                 <card.icon
                   size={50}
                   color="#fff"

@@ -1,14 +1,18 @@
 
 import { Footer } from "@/components/footer";
 import { GoodIcon, arrows, categories, weathers, } from "@/components/icons";
+import { ImageModal } from "@/components/image-modal";
 import SafeScreen from "@/components/safe-screen";
 import { colors } from "@/lib/colors";
 import { useCreateLikePost, useShowPost } from "@/lib/hooks/usePost";
 import { timeAgo } from "@/lib/utils/timeAgo";
+import { useUserStore } from "@/store/useUserStore";
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Image, Linking, ScrollView, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 export default function PostShow() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -16,7 +20,10 @@ export default function PostShow() {
   const insets = useSafeAreaInsets();
   const [headerHeight, setHeaderHeight] = useState(0);
   const [footerHeight, setFooterHeight] = useState(0);
+  const [isOpenImageModal, setIsOpenImageModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState("");
   const { width } = useWindowDimensions();
+  const user = useUserStore((state) => state.user);
 
   const {
     post,
@@ -24,6 +31,20 @@ export default function PostShow() {
     mutate,
   } = useShowPost(postId);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleLikeSubmit = (postId: number) => {
+    if (!user) {
+      Toast.show({
+        type: "error",
+        text1: "この機能を利用するにはログインが必須です。",
+      })
+      router.push("/auth"); 
+      return
+    }
+    likeSubmit({
+      postId: postId,
+    })
+  }
 
   const openWeatherDetail = () => {
     const year = post?.year.toString() ?? "";
@@ -36,15 +57,15 @@ export default function PostShow() {
     Linking.openURL(url);
   };
   const { submit: likeSubmit, isLoading: likeLoading } = useCreateLikePost();
-  
-  
-
-  
+    
   const horizontalPadding = 40
   const sliderWidth = width - horizontalPadding;  
   return(
     <SafeScreen changeBackgroundColor="white">
-      <View 
+      <LinearGradient
+        colors={[colors.blue, "#FFFFFF"]} // ← 上: 青 (#009DFF)、下: 白 (#FFFFFF)
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
         onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
         className="z-10 bg-primary border-b border-borderColor px-[20px] pb-4 gap-3"
         style={{
@@ -53,16 +74,20 @@ export default function PostShow() {
           left: 0,
           right: 0,
           paddingTop: Math.max(insets.top, 20),
+          paddingHorizontal: 20, // ← px-[20px] の代わり
+          paddingBottom: 24,     // ← pb-6 の代わり (6*4=24)
+          gap: 12,
+          zIndex: 10,
         }}
       >
         <TouchableOpacity
-          className="flex-row items-center gap-2 py-2 self-start mt-3"
+          className="bg-white flex-row items-center gap-2 py-2 mt-3 rounded-xl w-auto self-start px-3"
           onPress={() => router.back()}
         >
-          <arrows.ArrowLeftIcon size={18} color={"white"} />
-          <Text className="text-white font-medium">戻る</Text>
-      </TouchableOpacity>
-      </View>
+          <arrows.ArrowLeftIcon size={18} color={colors.primary} />
+          <Text className="text-primary font-medium">戻る</Text>
+        </TouchableOpacity>
+      </LinearGradient>
       <ScrollView
         className="mt-3"
         showsVerticalScrollIndicator={false}
@@ -86,18 +111,19 @@ export default function PostShow() {
               scrollEventThrottle={16}
             >
               {post.imagesUrl.map((url, index) => (
-                <View key={index} style={{ width: sliderWidth }}>
-                  <Image
-                    source={{ uri: url }}
-                    style={{
-                      width: sliderWidth - 16,
-                      height: 160,
-                      borderRadius: 16,
-                      marginHorizontal: 8,
-                    }}
-                    resizeMode="cover"
-                  />
-                </View>
+                <TouchableOpacity 
+                  key={index} 
+                  onPress={() => {setSelectedImage(url), setIsOpenImageModal(true)} }>
+                  <View style={{ width: sliderWidth }}>
+                    <Image
+                      source={{ uri: url }}
+                      className="w-full mt-3 rounded-2xl"
+                      style={{ height: 200 }}
+                      resizeMode="contain"
+                    
+                    />
+                  </View>
+                </TouchableOpacity>
               ))}
             </ScrollView>
             <View className="flex-row justify-center mt-3">
@@ -130,11 +156,7 @@ export default function PostShow() {
               <Text className="text-black mt-3">{post.message}</Text>
               <View className="flex-row justify-between items-center border-t border-borderColor mt-5 pb-3">
                 <TouchableOpacity 
-                  onPress={() =>
-                    likeSubmit({
-                      postId: post.id,
-                    })
-                  }
+                  onPress={() => handleLikeSubmit(post.id)}
                   className={`${
                     post.isLiked ? "bg-subLight" : "bg-grayLight"
                   } rounded-xl flex-row items-center gap-3 px-5 py-3 mt-3 min-w-0 border border-borderColor`}
@@ -205,6 +227,7 @@ export default function PostShow() {
           )}
       </ScrollView>
       <Footer setFooterHeight={setFooterHeight} />
+      <ImageModal imageUrl={selectedImage} isOpen={isOpenImageModal} setIsOpen={setIsOpenImageModal} />
     </SafeScreen>
   )
 }

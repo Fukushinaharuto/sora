@@ -149,7 +149,7 @@ export default function AddScreen() {
                     <View
                       className={`justify-center items-center gap-2 rounded-2xl py-5 border ${
                         isSelected
-                          ? "bg-primary border-primary"
+                          ? "bg-orangeDark border-orangeDark"
                           : "bg-white border-borderColor"
                       }`}
                     >

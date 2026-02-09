@@ -186,7 +186,7 @@ export default function Index() {
                       <Text className="text-primary font-bold">経路案内</Text>
                     </TouchableOpacity>
 
-                    {isWaiting && (
+                    {!task.isHelping && (
                       <TouchableOpacity 
                         className="flex-1 bg-blue-500 rounded-lg py-2 items-center"
                         onPress={() => submit( Number(city_id) , task.id, )}

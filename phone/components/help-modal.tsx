@@ -28,6 +28,7 @@ type Props = {
 
 export function HelpModal({ isOpen, setIsOpen, city_id, userStatus }: Props) {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [ isLoading, setIsLoading ] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -46,6 +47,7 @@ export function HelpModal({ isOpen, setIsOpen, city_id, userStatus }: Props) {
   const { submit: helpSubmit, isLoading: helpLoading } = useCreateHelp();
   const { submit: helpedSubmit, isLoading: helpedLoading } = useUpdateHelped();
   const handleHelpSubmit = async () => {
+    setIsLoading(true);
     Keyboard.dismiss();
     const { latitude, longitude } = await getCurrentLocation();
     const geocode = await Location.reverseGeocodeAsync({
@@ -67,6 +69,7 @@ export function HelpModal({ isOpen, setIsOpen, city_id, userStatus }: Props) {
       g.street,
       g.name,
     ].filter(Boolean).join("");
+  
     helpSubmit({
       message: message,
       city_id: Number(city_id),
@@ -74,6 +77,7 @@ export function HelpModal({ isOpen, setIsOpen, city_id, userStatus }: Props) {
       latitude: latitude,
       longitude: longitude,
     })
+    setIsLoading(false);
   }
 
   const handleBackdropPress = () => {
@@ -116,7 +120,7 @@ export function HelpModal({ isOpen, setIsOpen, city_id, userStatus }: Props) {
         >
           <Toast/>
         </View>
-        {helpLoading && (
+        {helpLoading || isLoading && (
           <View
             style={[
               StyleSheet.absoluteFillObject,

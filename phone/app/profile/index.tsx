@@ -3,9 +3,10 @@ import { badges, profiles } from "@/components/icons";
 import { colors } from "@/lib/colors";
 import { useIndexUserProfile } from "@/lib/hooks/useUser";
 import { useUserStore } from "@/store/useUserStore";
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
@@ -82,29 +83,27 @@ export default function Index() {
   if (indexUserProfileIsLoading) return;
   
   return (
-    <View className="flex-1 bg-grayLight"> 
+    <LinearGradient
+      colors={[colors.blue, "#FFFFFF"]} // ← 上: 青 (#009DFF)、下: 白 (#FFFFFF)
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.5, y: 1 }}
+      style={{ flex: 1 }}
+    >  
       <ScrollView 
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-      >
-      <View 
         onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
-        className="gap-1 bg-primary border-b border-borderColor px-[20px] pb-14 z-10"
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
+          paddingLeft: 20,
+          paddingRight: 20,
           paddingTop: Math.max(insets.top, 20),
         }}
       >
         <View className="mt-4">
           <Text className="text-white text-2xl font-bold">プロフィール</Text>
         </View>
-        <View className="justify-center items-center gap-2">
-          <TouchableOpacity>
-            <Image source={require('@/assets/images/icon.png')} className="w-20 h-20 rounded-full" />
-          </TouchableOpacity>
+        <View className="justify-center items-center gap-2 mt-7">
+          <profiles.Icon size={100} color={"white"} />
           <TouchableOpacity>
             <Text className="text-white text-lg font-bold">{user.name}</Text>
           </TouchableOpacity>
@@ -118,18 +117,8 @@ export default function Index() {
             <Text className="text-white/90 leading-tight border-b border-borderColor">地域を変更</Text>
           </TouchableOpacity>
         </View>
-      </View>
-        <View
-          pointerEvents="box-none"
-          className="flex-1"
-          style={{
-            paddingTop: Math.max(headerHeight - insets.top, 0),
-            paddingBottom: Math.max(footerHeight - insets.bottom + 20, 0),
-            paddingLeft: 20,
-            paddingRight: 20,
-            zIndex: 10
-          }}
-        >  
+
+        <View className="mt-5">  
           <View className="bg-white rounded-2xl flex-row justify-between items-center p-2 py-4 border border-borderColor shadow-[0_1px_3px_0px_rgba(0,0,0,0.1)]">
             <View className="flex-1 gap-2 items-center">
               <profiles.PostIcon size={18} color={colors.primary} />
@@ -201,6 +190,6 @@ export default function Index() {
         </View>
       </ScrollView>
       <Footer setFooterHeight={setFooterHeight}/>
-      </View>
+      </LinearGradient>
   );
 }

@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "phone",
+    "name": "SORA+",
     "slug": "phone",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/public/logo.png",
     "scheme": "phone",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

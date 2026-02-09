@@ -8,6 +8,7 @@ import { useCreateLikePost, useIndexPost } from "@/lib/hooks/usePost";
 import { changeWatherType } from "@/lib/utils/change-wather-type";
 import { timeAgo } from "@/lib/utils/timeAgo";
 import { useUserStore } from "@/store/useUserStore";
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Image, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -76,7 +77,20 @@ export default function Index() {
         return <NarrowDownIcon size={20} color={colors.primaryLight} />;
     }
   }
-  
+
+  const handleLikeSubmit = (postId: number) => {
+    if (!user) {
+      Toast.show({
+        type: "error",
+        text1: "この機能を利用するにはログインが必須です。",
+      })
+      router.push("/auth"); 
+      return
+    }
+    likeSubmit({
+      postId: postId,
+    })
+  }
   const handleHelpIsOpen = () => {
     if (user){
       setIsOpenHelpModal(true);
@@ -92,23 +106,29 @@ export default function Index() {
   return (
     <>
       <SafeScreen changeBackgroundColor="white">
-        <View 
+        <LinearGradient
+          colors={[colors.blue, "#FFFFFF"]} // ← 上: 青 (#009DFF)、下: 白 (#FFFFFF)
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
           onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
-          className="z-10 bg-white border-b border-borderColor px-[20px] pb-4 gap-3"
+          className="z-10 bg-white border-b border-borderColor px-[20px] pb-6 gap-3"
           style={{
             position: "absolute",
             top: 0,
             left: 0,
             right: 0,
             paddingTop: Math.max(insets.top, 20),
+            paddingHorizontal: 20, // ← px-[20px] の代わり
+            paddingBottom: 24,     // ← pb-6 の代わり (6*4=24)
+            gap: 12,
           }}
         >
           <TouchableOpacity 
             onPress={() => router.push("/location")}
             className="flex-row items-center gap-2 mt-3"
           >
-            <locations.LocationIcon size={20} color={colors.primaryLight} />
-            <Text className="text-black">{cityName}・エリア</Text>
+            <locations.LocationIcon size={20} color={colors.yellow} />
+            <Text className="text-white">{cityName}・エリア</Text>
           </TouchableOpacity>
           <View className="flex-row items-center gap-3 bg-grayLight rounded-xl px-5 py-3">
             <LogoIcon size={24} color={colors.primary} />
@@ -117,7 +137,7 @@ export default function Index() {
               <Text className="text-blackLight text-xs">最高 {maxTemperature}°C / 最低 {minTemperature}°C</Text>
             </View>
           </View>
-        </View>
+        </LinearGradient>
         
         <View 
           className="flex-1"
@@ -130,8 +150,8 @@ export default function Index() {
             <View className="flex-row items-center gap-2">
               <Text className="text-blackLight text-xs">カテゴリ</Text>
               <TouchableOpacity 
-                className="flex-row items-center gap-1 bg-primary rounded-xl px-3 py-2"
-                onPress={() => {setIsOpenCategoryModal(true)}}
+                className="flex-row items-center gap-1 bg-yellow rounded-xl px-3 py-2"
+                onPress={() => setIsOpenCategoryModal(true)}
               >
                 <NarrowDownIcon size={14} color="white" />
                 <Text className="text-sm text-white font-bold">
@@ -178,9 +198,11 @@ export default function Index() {
                     </View>
                     <Text className="text-black mt-3">{post.message}</Text>
                     {post.imageUrl && (
-                      <Image 
+                      <Image
                         source={{ uri: post.imageUrl }}
-                        className="w-full h-40 rounded-2xl mt-3" 
+                        className="w-full mt-3 rounded-2xl"
+                        style={{ height: 200 }} // 高さだけ固定して比率は維持
+                        resizeMode="contain"
                       />
                     )}
                     <View className="bg-grayLight rounded-lg flex-row items-center gap-3 px-3 py-2 mt-3">
@@ -189,11 +211,7 @@ export default function Index() {
                     </View>
                     <View className="flex-row justify-start items-center">
                       <TouchableOpacity 
-                        onPress={() =>
-                          likeSubmit({
-                            postId: post.id,
-                          })
-                        }
+                        onPress={() =>handleLikeSubmit(post.id)}
                         className={`${
                           post.isLiked ? "bg-subLight" : "bg-grayLight"
                         } rounded-xl flex-row items-center gap-3 px-5 py-3 mt-3 min-w-0 border border-borderColor`}
@@ -252,7 +270,7 @@ export default function Index() {
               backgroundColor: "transparent",
               borderRadius: 999,
             }}
-            onPress={() => router.push(`/help?city_id=${city_id}`)}
+            onPress={() => {user ? router.push(`/help?city_id=${city_id}`) : router.push("/auth")}}
           >
             <helps.NotificationIcon size={55} color={colors.primary} />
           </TouchableOpacity>

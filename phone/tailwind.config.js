@@ -20,6 +20,8 @@ module.exports = {
         mapIconBlue: "#155DFC",
         red: "#FB2C36",
         orange: "#F54900",
+        orangeDark: "#F09460",
+        yellow: "#EFD060",
       },
     },
   },

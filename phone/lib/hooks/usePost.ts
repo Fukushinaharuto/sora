@@ -14,14 +14,21 @@ export function useIndexPost(city_id: number, category_id: number) {
     city_id
       ? `/post?city_id=${city_id}&category_id=${category_id}`
       : null;
-    const { data, error, isLoading, mutate } = useSWR(key, async () => {
-      return indexPost({
+  const { data, error, isLoading, mutate } = useSWR(
+    key,
+    () =>
+      indexPost({
         city_id,
         category_id,
         latitude: latitude!,
         longitude: longitude!,
-      });
-    });
+      }),
+    {
+      refreshInterval: 5000,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+    }
+  );
   return {
     posts: data?.posts ?? [],
     cityName: data?.cityName ?? "",
@@ -103,7 +110,7 @@ export function useCreateLikePost() {
   const submit = async ({ postId }: CreateLikePost) => {
     setIsLoading(true);
     const showKey = `/post/show/${postId}`;
-
+    const userProfileKey = "/user/profile";
     // ① まず楽観的に更新（詳細）
     mutate(
       showKey,
@@ -169,10 +176,12 @@ export function useCreateLikePost() {
             : current,
         false
       );
+      mutate(userProfileKey);
     } catch {
       // ⑤ 失敗したら再検証して元に戻す
       mutate(showKey);
       mutate((key) => typeof key === "string" && key.startsWith("/post?city_id="));
+      mutate(userProfileKey);
       Toast.show({
         type: "error",
         text1: "いいねに失敗しました！",

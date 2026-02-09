@@ -12,10 +12,14 @@ export function useIndexHelp(city_id: number) {
   const key = city_id
     ? `/help?city_id=${city_id}`
     : null;
-
   const { data, error, isLoading, mutate } = useSWR(
     key,
-    () => indexHelp({ city_id })
+    () => indexHelp({ city_id }),
+    {
+      refreshInterval: 5000,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+    }
   );
 
   return {
@@ -62,7 +66,6 @@ export function useCreateAssignments() {
       // フェッチしたデータで更新
       mutate(key);
     } catch (e: any) {
-      console.log(e.message)
       if (e?.status === 422) {
         // バリデーションエラー
         Toast.show({

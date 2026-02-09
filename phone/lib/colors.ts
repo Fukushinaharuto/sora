@@ -9,6 +9,9 @@ export type Colors = {
   blackLight: string;
   red: string;
   orange: string;
+  blue: string;
+  orangeDark: string;
+  yellow: string;
 };
 export const colors: Colors = {
   primary: "#314158",
@@ -21,4 +24,7 @@ export const colors: Colors = {
   blackLight: "#62748E",
   red: "#FB2C36",
   orange: "#F54900",
+  blue: "#009DFF",
+  orangeDark: "#F09460",
+  yellow: "#EFD060",
 };
